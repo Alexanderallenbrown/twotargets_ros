@@ -1,0 +1,6 @@
+[submodule "hunting_fishbrain"]
+	path = hunting_fishbrain
+	url = https://github.com/Alexanderallenbrown/hunting_fishbrain
+[submodule "nodes/hunting_fishbrain"]
+	path = nodes/hunting_fishbrain
+	url = https://github.com/Alexanderallenbrown/hunting_fishbrain
