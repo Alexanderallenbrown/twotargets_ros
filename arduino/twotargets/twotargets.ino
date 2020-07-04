@@ -5,16 +5,18 @@ Servo rightTargServo;
 
 float leftCommand = 0;
 float rightCommand = 0;
-int leftServoPin = 9;
-int rightServoPin = 11;
+int leftServoPin = 44;
+int rightServoPin = 46;
 
 int leftFeederPin = 4;
 int rightFeederPin = 5;
+float leftShoot = false;
+float rightShoot = false;
 
 void setup() {
   Serial.begin(115200);
-  leftTargServo.attach(9);
-  rightTargServo.attach(11);
+  leftTargServo.attach(leftServoPin);
+  rightTargServo.attach(rightServoPin);
   pinMode(leftFeederPin,OUTPUT);
   pinMode(rightFeederPin,OUTPUT);
 }
@@ -33,6 +35,14 @@ void loop()
       rightCommand = Serial.parseFloat();
       leftShoot = Serial.parseFloat();
       rightShoot = Serial.parseFloat();
+      Serial.print(leftCommand);
+      Serial.print("\t");
+      Serial.print(rightCommand);
+      Serial.print("\t");
+      Serial.print(bool(leftShoot));
+      Serial.print("\t");
+      Serial.print(bool(rightShoot));
+      Serial.println();
       
     }
     else{
