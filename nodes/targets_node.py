@@ -21,10 +21,10 @@ class TargetsNode():
     self.listener = tf.TransformListener()
     #set up your publishers with appropriate topic types
 
-    self.conditionpub = rospy.Publisher("/experimental_condition",String,queue_size=1)
-    self.statepub = rospy.Publisher("/target_is_out",String,queue_size=1)
-    self.targetposepub = rospy.Publisher("/targetpose",Pose,queue_size=1)
-    self.targetMarkerpub = rospy.Publisher("/target_marker",Marker,queue_size=1)
+    self.conditionpub = rospy.Publisher("/fishtarget_ros/experimental_condition",String,queue_size=1)
+    self.statepub = rospy.Publisher("/fishtarget_ros/target_is_out",String,queue_size=1)
+    self.targetposepub = rospy.Publisher("/fishtarget_ros/targetpose",PoseStamped,queue_size=1)
+    self.targetMarkerpub = rospy.Publisher("/fishtarget_ros/target_marker",Marker,queue_size=1)
 
     self.xoffset,self.yoffset,self.zoffset = -.15,-.05,0
 
@@ -33,7 +33,7 @@ class TargetsNode():
     self.ser = serial.Serial(self.port, self.baud,timeout=1) #this initializes the serial object
 
     #set up your subscribers
-    self.sub1 = rospy.Subscriber("/robotshot",Bool,self.sub1Callback)
+    self.sub1 = rospy.Subscriber("/fishgantry/robotshot",Bool,self.sub1Callback)
     #initialize any variables that the class "owns. these will be available in any function in the class.
     #(self,ITI_mean,ITI_random,Trial_mean,Trial_random,tleftPose,trightPose)
     ITI_mean,ITI_random,Trial_mean,Trial_random = 5,0,25,0
