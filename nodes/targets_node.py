@@ -26,7 +26,7 @@ class TargetsNode():
     self.targetposepub = rospy.Publisher("/fishtarget_ros/targetpose",PoseStamped,queue_size=1)
     self.targetMarkerpub = rospy.Publisher("/fishtarget_ros/target_marker",Marker,queue_size=1)
 
-    self.xoffset,self.yoffset,self.zoffset = -.3,-.05,0
+    self.xoffset,self.yoffset,self.zoffset = 0,0,0#-.2,-.05,0
 
     self.port = rospy.get_param('~port','/dev/ttyACM0')
     self.baud = rospy.get_param('~baud',115200)
@@ -41,8 +41,8 @@ class TargetsNode():
     #initialize any variables that the class "owns. these will be available in any function in the class.
     #(self,ITI_mean,ITI_random,Trial_mean,Trial_random,tleftPose,trightPose)
     ITI_mean,ITI_random,Trial_mean,Trial_random = 5,0,25,0
-    rTarg = FishState(.35,.15,.15,0,0) #the target has no inherent pitch or yaw requirement
-    lTarg = FishState(.05,.15,.15,0,0) 
+    rTarg = FishState(.4,.15,.15,0,0) #the target has no inherent pitch or yaw requirement
+    lTarg = FishState(-.1,.15,.15,0,0) 
     self.targets = TwoTargets(ITI_mean,ITI_random,Trial_mean,Trial_random,lTarg,rTarg)
 
     self.dt = 0.1
@@ -110,9 +110,14 @@ class TargetsNode():
         targetmarker.scale.z = .05
         targetmarker.color.a=1.0
         if self.targets.state == "target":
-            targetmarker.color.r=0
-            targetmarker.color.g=1.0
-            targetmarker.color.b=0
+            if self.targets.trialType[0]=='E':
+                targetmarker.color.r=0
+                targetmarker.color.g=1.0
+                targetmarker.color.b=0
+            else:
+                targetmarker.color.r=0
+                targetmarker.color.g=0
+                targetmarker.color.b=1.0
         else:
             targetmarker.color.r=1.0
             targetmarker.color.g=0
@@ -131,9 +136,9 @@ class TargetsNode():
 
         tpose = PoseStamped()
         tpose.header.stamp = timenow
-        tpose.pose.position.x = self.targets.pose.x-self.xoffset
-        tpose.pose.position.y = self.targets.pose.y-self.yoffset
-        tpose.pose.position.z = self.targets.pose.z-self.zoffset
+        tpose.pose.position.x = self.targets.pose.x
+        tpose.pose.position.y = self.targets.pose.y
+        tpose.pose.position.z = self.targets.pose.z
         self.targetposepub.publish(tpose)
         #rospy.logwarn("hello from target node")
 
