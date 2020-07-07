@@ -26,7 +26,7 @@ void loop()
   
 
   
-  if (Serial.available())
+  while (Serial.available())
   {
     char myChar = Serial.read();
     if (myChar == '!')
@@ -35,14 +35,14 @@ void loop()
       rightCommand = Serial.parseFloat();
       leftShoot = Serial.parseFloat();
       rightShoot = Serial.parseFloat();
-      Serial.print(leftCommand);
-      Serial.print("\t");
-      Serial.print(rightCommand);
-      Serial.print("\t");
-      Serial.print(bool(leftShoot));
-      Serial.print("\t");
-      Serial.print(bool(rightShoot));
-      Serial.println();
+//      Serial.print(leftCommand);
+//      Serial.print("\t");
+//      Serial.print(rightCommand);
+//      Serial.print("\t");
+//      Serial.print(bool(leftShoot));
+//      Serial.print("\t");
+//      Serial.print(bool(rightShoot));
+//      Serial.println();
       
     }
     else{
