@@ -25,6 +25,7 @@ class TargetsNode():
     self.statepub = rospy.Publisher("/fishtarget_ros/target_is_out",String,queue_size=1)
     self.targetposepub = rospy.Publisher("/fishtarget_ros/targetpose",PoseStamped,queue_size=1)
     self.targetMarkerpub = rospy.Publisher("/fishtarget_ros/target_marker",Marker,queue_size=1)
+    self.remainingpub = rospy.Publisher("/fishtarget_ros/time_remaining",String,queue_size=1)
 
     self.xoffset,self.yoffset,self.zoffset = 0,0,0#-.2,-.05,0
 
@@ -40,9 +41,9 @@ class TargetsNode():
 
     #initialize any variables that the class "owns. these will be available in any function in the class.
     #(self,ITI_mean,ITI_random,Trial_mean,Trial_random,tleftPose,trightPose)
-    ITI_mean,ITI_random,Trial_mean,Trial_random = 5,0,25,0
-    rTarg = FishState(.4,.15,.15,0,0) #the target has no inherent pitch or yaw requirement
-    lTarg = FishState(-.1,.15,.15,0,0) 
+    ITI_mean,ITI_random,Trial_mean,Trial_random = 300,15,25,1
+    rTarg = FishState(.3,.15,.25,0,0) #the target has no inherent pitch or yaw requirement
+    lTarg = FishState(0,.15,.25,0,0) 
     self.targets = TwoTargets(ITI_mean,ITI_random,Trial_mean,Trial_random,lTarg,rTarg)
 
     self.dt = 0.1
@@ -71,15 +72,18 @@ class TargetsNode():
 
     #update the target controller
     if self.exprunning:
-        self.targets.update(self.robotshot)
+        lhunt, lpose, lstate, lblock,remaining = self.targets.update(self.robotshot)
         trialtypemsg = String()
         trialtypemsg.data = self.targets.trialType
         tstatemsg = String()
         tstatemsg.data = self.targets.state
+        tremainingmsg = String()
+        tremainingmsg.data = str(remaining)
 
 
         self.conditionpub.publish(trialtypemsg)
         self.statepub.publish(tstatemsg)
+        self.remainingpub.publish(remainingmsg)
 
         if ((self.targets.trialType == 'EL') or (self.targets.trialType == 'CL')):
             if( (self.targets.state == 'target' )):
