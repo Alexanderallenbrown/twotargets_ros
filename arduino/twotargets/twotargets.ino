@@ -5,13 +5,19 @@ Servo rightTargServo;
 
 float leftCommand = 0;
 float rightCommand = 0;
-int leftServoPin = 44;
-int rightServoPin = 46;
+int leftServoPin = 5;
+int rightServoPin = 6;
 
-int leftFeederPin = 4;
-int rightFeederPin = 5;
+int leftFeederPin = 7;
+int rightFeederPin = 8;
 float leftShoot = false;
 float rightShoot = false;
+float leftShootOld = false;
+float rightShootOld = false;
+
+
+unsigned long shootMillis = 1000000;
+unsigned long lastShootMillis = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -33,15 +39,17 @@ void loop()
     {
       leftCommand = Serial.parseFloat();
       rightCommand = Serial.parseFloat();
-      leftShoot = Serial.parseFloat();
-      rightShoot = Serial.parseFloat();
+      leftShoot = bool(Serial.parseFloat());
+      rightShoot = bool(Serial.parseFloat());
 //      Serial.print(leftCommand);
 //      Serial.print("\t");
 //      Serial.print(rightCommand);
 //      Serial.print("\t");
-//      Serial.print(bool(leftShoot));
+//      Serial.print(rightShoot&&!rightShootOld);
 //      Serial.print("\t");
-//      Serial.print(bool(rightShoot));
+//      Serial.print(rightShoot&&!rightShootOld);
+//      Serial.print("\t");
+//      Serial.print(shootMillis);
 //      Serial.println();
       
     }
@@ -49,11 +57,21 @@ void loop()
       //char junk = Serial.read();
     }
   }
+
+  if((leftShoot&&!leftShootOld)||(rightShoot&&!rightShootOld)){
+    lastShootMillis = millis();
+  }
+  shootMillis = millis()-lastShootMillis ;
+  
     leftTargServo.write(int(leftCommand));
     rightTargServo.write(int(rightCommand));
-    digitalWrite(leftFeederPin,bool(leftShoot));
-    digitalWrite(rightFeederPin,bool(rightShoot));
-
+    digitalWrite(leftFeederPin,leftShoot&&(shootMillis<4000)&&(shootMillis>3000));
+    digitalWrite(rightFeederPin,rightShoot&&(shootMillis<4000)&&(shootMillis>3000));
+    leftShootOld = leftShoot;
+    rightShootOld = rightShoot;
+    
+    
+  
   delay(1);
 
 }

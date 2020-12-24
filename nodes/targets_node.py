@@ -17,7 +17,7 @@ from hunting_fishbrain.hunting_fishbrain.HybridFishBrain import FishState
 
 class TargetsNode():
   def __init__(self):
-    self.timenow = rospy.Time.now()#in case you need this
+    self.timenow = rospy.Time.now()#inser case you need this
     self.listener = tf.TransformListener()
     #set up your publishers with appropriate topic types
 
@@ -29,7 +29,7 @@ class TargetsNode():
 
     self.xoffset,self.yoffset,self.zoffset = 0,0,0#-.2,-.05,0
 
-    self.port = rospy.get_param('~port','/dev/ttyACM0')
+    self.port = rospy.get_param('~port','/dev/ttyARDUINOTARGETS')
     self.baud = rospy.get_param('~baud',115200)
     self.ser = serial.Serial(self.port, self.baud,timeout=1) #this initializes the serial object
 
@@ -37,6 +37,7 @@ class TargetsNode():
     self.robotshot = False
     self.exprunning = False
     self.sub1 = rospy.Subscriber("/fishgantry/robotshot",Bool,self.sub1Callback)
+    self.squirtpose_sub = rospy.Subscriber("/fishgantry/squirtpose",PoseStamped,self.squirtCallback)
     self.sub2 = rospy.Subscriber("/fishgantry/exprunning",Bool,self.sub2Callback)
 
     #initialize any variables that the class "owns. these will be available in any function in the class.
@@ -58,9 +59,17 @@ class TargetsNode():
     self.br = tf.TransformBroadcaster()
 
 
+
+  def squirtCallback(self,data):
+    #self.robotshot = bool(data.pose.orientation.z)
+    #rospy.logwarn("ROBOT SHOT FROM TARGET: "+str(self.robotshot))
+    pass
+
   def sub1Callback(self,data):
     #the actual string is called by data.data. update the appropriate class-owned variable.
     self.robotshot = data.data
+    #print(data.data)
+    #pass
 
   def sub2Callback(self,data):
     self.exprunning = data.data
@@ -69,6 +78,7 @@ class TargetsNode():
   def loop(self,event):
     #this function runs over and over again at dt.
     #do stuff based on states. 
+    #rospy.logwarn("!"+str(self.outPosition)+","+str(self.inPosition)+","+str(int(self.robotshot))+","+str(0))
 
     #update the target controller
     if self.exprunning:
@@ -77,24 +87,27 @@ class TargetsNode():
         trialtypemsg.data = self.targets.trialType
         tstatemsg = String()
         tstatemsg.data = self.targets.state
-        tremainingmsg = String()
-        tremainingmsg.data = str(remaining)
+        remainingmsg = String()
+        remainingmsg.data = str(remaining)
 
 
         self.conditionpub.publish(trialtypemsg)
         self.statepub.publish(tstatemsg)
         self.remainingpub.publish(remainingmsg)
-
+        rospy.logwarn("ROBOT SHOT: "+str(self.robotshot))
         if ((self.targets.trialType == 'EL') or (self.targets.trialType == 'CL')):
             if( (self.targets.state == 'target' )):
-                self.ser.write("!"+str(self.outPosition)+","+str(self.inPosition)+"\r\n")
+                self.ser.write("!"+str(self.outPosition)+","+str(self.inPosition)+","+str(int(self.robotshot))+","+str(0)+"\r\n")
+            
+                rospy.logwarn("!"+str(self.outPosition)+","+str(self.inPosition)+","+str(int(self.robotshot))+","+str(0))
             else:
-                self.ser.write("!"+str(self.inPosition)+","+str(self.inPosition)+"\r\n")
+                self.ser.write("!"+str(self.inPosition)+","+str(self.inPosition)+","+str(int(self.robotshot))+","+str(0)+"\r\n")
         elif ((self.targets.trialType == 'ER') or (self.targets.trialType == 'CR')):
             if( (self.targets.state == 'target' )):
-                self.ser.write("!"+str(self.inPosition)+","+str(self.outPosition)+"\r\n")
+                self.ser.write("!"+str(self.inPosition)+","+str(self.outPosition)+","+str(0)+","+str(int(self.robotshot))+"\r\n")
+                rospy.logwarn("!"+str(self.inPosition)+","+str(self.outPosition)+","+str(0)+","+str(int(self.robotshot)))
             else:
-                self.ser.write("!"+str(self.inPosition)+","+str(self.inPosition)+"\r\n")
+                self.ser.write("!"+str(self.inPosition)+","+str(self.inPosition)+","+str(0)+","+str(int(self.robotshot))+"\r\n")
         
         timenow = rospy.Time.now()
 
